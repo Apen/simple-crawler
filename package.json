@@ -1,0 +1,22 @@
+{
+  "name": "crawler",
+  "version": "1.0.0",
+  "description": "Just another simple crawler",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "lint": "eslint .",
+    "scrapethissite": "node index.js -u \"https://scrapethissite.com/\" -ua \"GoogleBot\""
+  },
+  "dependencies": {
+    "commander": "^6.0.0",
+    "fs-extra": "^9.0.1",
+    "puppeteer": "^5.2.1",
+    "puppeteer-cluster": "^0.21.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.5.0"
+  }
+}
