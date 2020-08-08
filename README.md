@@ -13,7 +13,5 @@ This project is made with the following technologies :
 
 * nodejs
 * commander
-* fs-extra
 * puppeteer
 * puppeteer-cluster
-* eslint
