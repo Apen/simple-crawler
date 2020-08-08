@@ -42,7 +42,7 @@ const processPage = async (page, url, response) => {
 };
 
 const cleanDatas = async () => {
-  await fs.readdir('errors', (error, files) => {
+  fs.readdir('errors', (error, files) => {
     if (error) throw error;
     files
       .filter((name) => /.*\.png$/.test(name))
@@ -50,7 +50,7 @@ const cleanDatas = async () => {
         await fs.unlinkSync(`errors/${value}`);
       });
   });
-  await fs.readdir('urls', (error, files) => {
+  fs.readdir('urls', (error, files) => {
     if (error) throw error;
     files
       .filter((name) => /.*\.txt$/.test(name))
