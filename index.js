@@ -70,6 +70,18 @@ const cleanDatas = async () => {
   await deleteFilesTypesFromPath('extracts', 'txt');
 };
 
+const isAllowedLink = (url) => {
+  let allowed = false;
+  if (url.startsWith(URL) || url.startsWith(URL_RELATIVE)) {
+    allowed = true;
+  }
+  const filesTypes = new RegExp(`.*\.(pdf|gif|jpg|jpeg|png|doc|docx|xls|xlsx|bmp|ppt|pptx|zip|tar|gz)$`, 'i');
+  if (filesTypes.test(url)) {
+    allowed = false;
+  }
+  return allowed;
+};
+
 (async () => {
   await cleanDatas();
 
@@ -77,7 +89,8 @@ const cleanDatas = async () => {
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 2,
     skipDuplicateUrls: true,
-    monitor: true
+    monitor: true,
+    timeout: 60 * 1000
   });
 
   cluster.on('taskerror', (err, data, willRetry) => {
@@ -100,13 +113,20 @@ const cleanDatas = async () => {
       await page.setCookie(...cookies);
     }
 
-    const response = await page.goto(url);
+    const response = await page.goto(
+      url,
+      { waitUntil: 'load', timeout: 0 }
+    );
     await page.waitForSelector('body');
     await processPage(page, url, response);
-    const urlList = await page.evaluate(() => Array.from(document.querySelectorAll('a:not([href*="javascript"]'), a => a.href));
-    urlList.forEach(url => {
-      if (url.startsWith(URL) || url.startsWith(URL_RELATIVE)) {
+    const urlList = await page.evaluate(
+      () => Array.from(document.querySelectorAll('a:not([href*="javascript"]):not([href*="#"])'), a => a.href)
+    );
+    const uniqUrlList = [...new Set(urlList)];
+    uniqUrlList.forEach(url => {
+      if (isAllowedLink(url)) {
         cluster.queue(url);
+        writeLineToFile('urls/debug.txt', url);
       }
     });
   });
